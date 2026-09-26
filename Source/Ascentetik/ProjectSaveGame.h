@@ -12,12 +12,27 @@
  */
 
 USTRUCT(BlueprintType)
+struct FDifficultyCompletionData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Value;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Time;
+};
+
+USTRUCT(BlueprintType)
 struct FGameSaveFields
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EGameDifficulty Difficulty;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FDifficultyCompletionData> DifficultiesCompletionData;
 };
 
 USTRUCT(BlueprintType)
