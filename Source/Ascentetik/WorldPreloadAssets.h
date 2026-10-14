@@ -16,5 +16,8 @@ class ASCENTETIK_API UWorldPreloadAssets : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftObjectPtr<UWorld>> Levels;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSoftObjectPtr<UObject>> Objects;
 };
