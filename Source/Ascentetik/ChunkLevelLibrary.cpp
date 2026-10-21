@@ -20,42 +20,38 @@ AActor* UChunkLevelLibrary::FindActorWithTagInLevel(ULevelStreaming* LevelStream
 	return nullptr;
 }
 
+static FString StripPIEPrefix(const FString& In)
+{
+	const int32 Idx = In.Find(TEXT("UEDPIE_"));
+	if (Idx == INDEX_NONE) return In;
+
+	int32 After = Idx + 7;                                   // довжина "UEDPIE_"
+	while (After < In.Len() && FChar::IsDigit(In[After])) ++After;
+	if (After < In.Len() && In[After] == TEXT('_')) ++After;
+
+	return In.Left(Idx) + In.Mid(After);
+}
+
 AActor* UChunkLevelLibrary::FindActorWithTagInStreamedWorld(const UObject* WorldContextObject, TSoftObjectPtr<UWorld> StreamedWorld, FName Tag)
 {
 	UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
-	if (!World) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ERROR WORLD"));
-	 	return nullptr;
-	}
+	if (!World) return nullptr;
+
+	const FString Target = StripPIEPrefix(StreamedWorld.GetLongPackageName());
 
 	for (ULevelStreaming* Streaming : World->GetStreamingLevels())
 	{
-		if (!Streaming || Streaming->GetWorldAsset() != StreamedWorld)
-		{
-			continue;
-		}
+		if (!Streaming) continue;
+		if (StripPIEPrefix(Streaming->GetWorldAssetPackageName()) != Target) continue;
 
 		ULevel* Level = Streaming->GetLoadedLevel();
-		if (!Level)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ERROR LEVEL"));
-			return nullptr;
-		}
+		if (!Level) return nullptr;
 
 		for (AActor* Actor : Level->Actors)
 		{
-			if (Actor && Actor->ActorHasTag(Tag))
-			{ 
-				UE_LOG(LogTemp, Warning, TEXT("ERROR ON ACTOR"));
-				return Actor;
-			}
+			if (Actor && Actor->ActorHasTag(Tag)) return Actor;
 		}
-		
-		UE_LOG(LogTemp, Warning, TEXT("ERROR WORLD AFTER FOR OF LEVEL"));
 		return nullptr;
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("ERROR WORLD ON END"));
 	return nullptr;
 }
